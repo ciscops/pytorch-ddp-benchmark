@@ -1,0 +1,17 @@
+# Ignore files that shouldn't be included in container build context
+.git
+.gitignore
+README.md
+USAGE.md
+*.md
+build.sh
+docker-compose.yml
+results/
+*.json
+.DS_Store
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.log

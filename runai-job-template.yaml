@@ -1,0 +1,69 @@
+# Run:AI job template for PyTorch DDP Benchmark
+# Customize the values below and submit with: runai submit -f runai-job-template.yaml
+
+apiVersion: run.ai/v1
+kind: RunaiJob
+metadata:
+  name: pytorch-ddp-benchmark
+  namespace: runai-<your-project>
+spec:
+  # Resource allocation
+  gpu: 2                    # Number of GPUs per worker
+  workers: 2                # Number of worker pods for distributed training
+  cpu: "8"                  # CPU cores per worker
+  memory: "32Gi"            # Memory per worker
+  
+  # Image and command
+  image: pytorch-ddp-benchmark:latest
+  command: ["/workspace/run_benchmark.sh"]
+  
+  # Environment variables
+  environment:
+    - name: WORLD_SIZE
+      value: "4"            # Total GPUs (workers * gpu)
+    - name: MODEL
+      value: "resnet50"     # Model to benchmark
+    - name: DISTRIBUTED_BACKEND
+      value: "nccl"
+    - name: BUCKET_SIZE
+      value: "25"
+    - name: JSON_OUTPUT
+      value: "/shared/results.json"
+  
+  # Storage
+  volumes:
+    - name: shared-storage
+      persistentVolumeClaim:
+        claimName: shared-pvc
+  volumeMounts:
+    - name: shared-storage
+      mountPath: /shared
+  
+  # Scheduling preferences
+  nodeType: "gpu-v100"      # Specify GPU type if needed
+  priority: "normal"        # low, normal, high
+  preemptible: false        # Set to true for cost-effective preemptible instances
+  
+  # Auto-restart policy
+  restartPolicy: "Never"    # Never, OnFailure, Always
+  
+  # Resource limits (optional)
+  limits:
+    gpu: 4
+    cpu: "8"
+    memory: "32Gi"
+    
+---
+# Example Persistent Volume Claim for shared storage
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: shared-pvc
+  namespace: runai-<your-project>
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: fast-ssd  # Adjust based on your cluster's storage classes
