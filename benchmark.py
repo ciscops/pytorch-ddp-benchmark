@@ -122,7 +122,7 @@ def sweep(benchmark):
         local_print(f"{prefix:8s}:")
         for p in [50, 75, 90, 95]:
             v = np.percentile(measurements, p)
-            local_print(f"  p{p:02d}:  {v:1.3f}s  {nelem / v:6d}/s")
+            local_print(f"  p{p:02f}:  {v:1.3f}s  {nelem / v:6f}/s")
         local_print("\n")
 
     # Every process runs once by themselves to warm up (CUDA init, etc).
@@ -211,7 +211,7 @@ def main():
     num_gpus_per_node = torch.cuda.device_count()
     if num_gpus_per_node != 2:
         raise AssertionError(
-            f"Expected 8 GPUs per machine, but found {num_gpus_per_node}"
+            f"Expected 2 GPUs per machine, but found {num_gpus_per_node}"
         )
 
     # The global process group used only for communicating benchmark
